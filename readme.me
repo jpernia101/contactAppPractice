@@ -1,0 +1,142 @@
+This one talks about react navigation v2
+They are curren at 4 and there are a few major changes
+
+NAVIGATION 
+    ●Web navigation is oriented around URLs
+    ●Mobile apps do not use URLs for navigating within the app*
+    ●Navigation APIs completely different on iOS and Android
+        ○Several React Native libraries provide a platform agnostic alternative
+        ○We will talk about one of them today, React Navigation
+            -REACT NAVIGATION
+
+Navigator
+    -is a component that implements a navigator pattern(e.g tabs)
+    -each navigator mudt have one or more routes
+        -a navigator is a parent of a route
+        -A route is a child of a navigator
+    -each Route must have a name and a screen component 
+        -the name is usually unique acroos the app 
+        -the screen component is a react component that is rendered when the route is active
+        -the screen component can also be another navigator
+
+    Switch Navigator
+        -Display one screen at a time
+        -when screen is inactive it is unmounted
+        -the only action a user can take to switch from one route to another
+        -Example
+          //Creating a navigator
+            import { createSwitchNavigator } from'react-navigation'
+            const AppNavigator = createSwitchNavigator(
+                {"RouteNameOne": ScreenComponentOne,
+                 "RouteNameTwo": ScreenComponentTwo,}
+                );
+         //Rendering a navigator
+            export defaultclass App extends React.Component 
+            {  render() 
+                {return<AppNavigator/>  
+            }}
+        
+        -createSwitchNavigator is a function that returns a react component
+        -we render the component in our root App component.(different in v3 and v4 i beleive)
+        -Usually only explicitly render one navigator per app because navigators are composable
+
+        -navigating to another route 
+            class ScreenComponentOne extends React.Component 
+                { render() 
+                    {return (<Buttontitle="Go to two"onPress={() =>this.props.navigation.navigate('RouteNameTwo')
+                }/>   ); }}
+    
+    ScreenProps 
+        -made available to every screen component in navigator
+        -Perfectly fine for very small apps and prototyping but ineffiecient for most meaningful
+         apps. Every route in your app will re-render when screenprops changes. Uses a state mananement
+         library or the React Context API instead
+
+         export defaultclass App extends React.Component 
+          {render() 
+            {return <AppNavigatorscreenProps={/* object here */}/>  
+           }}
+    
+    Stack Navigator -most common
+        -Displays one screen at a time
+        -The state of the inactive screens is maintained and they remain mounted
+        -Platform specific layout, animations , Gestures
+            -Screens are stacked on top of each other
+            -iOS: screens slide in from right to left can be dismissed with left to right
+             Modal screens slide in from the bottom up can be dismissed with top down Gestures
+            -Android: screens fade in on top of each other no dismiss gesture, hardware back button 
+             dismisses the active screen
+        -Users can push and pop items from the stack , replace the current item and various other
+
+        import { createStackNavigator } from'react-navigation';
+        const AppNavigator = createStackNavigator({
+            "RouteNameOne": ScreenComponentOne,
+            "RouteNameTwo": ScreenComponentTwo,
+            });
+
+        Navigating to another route
+        
+        class ScreenComponentOne extends React.Component 
+            { render() 
+            {return (<Buttontitle="Go to two"onPress={() =>this.props.navigation.navigate('RouteNameTwo')
+            }/>   ); }}
+
+
+        Using params to pass state between routes
+            ●navigate with params 
+                this.props.navigation.navigate('RouteName', {  paramName: 'value-of-param'});
+            
+            ●setParams to update params for the route 
+                this.props.navigation.setParams({ paramName: 'new-value-of-param',});
+                
+            ●getParam to read a param
+                this.props.navigation.getParam('paramName', 'default-value');
+
+
+            Similar to screenprops.
+
+            -push , pop , replace are all specific to StackNavigators
+
+
+    Composing Navigators 
+        -navigators can be composed when one type of navigation visually appears to be inside
+         another navigator 
+        -A Navigator can be the screen component of another navigator
+        -The App should only contain one top-level navigator
+        -you can navigate() to any route in the app
+        -goBack() works for the whole app , supports Android back button
+
+        Composing navigators 
+         
+         const MyStackNavigator = createStackNavigator(
+             {  "Home": HomeScreen,  
+                "AddContact": AddContactScreen,
+            });
+            
+        const AppNavigator = createSwitchNavigator(
+            {"Login": LoginScreen,
+             "Main": MyStackNavigator,
+            });
+
+    Tab Navigators
+        -Display one screen at a time
+        -The state of inactive screen is maintained
+        -Platform Specific layout, animations , gestures
+            ○createMaterialTopTabNavigator
+            ○createMaterialBottomTabNavigator
+            ○createBottomTabNavigator
+        -The navigate() action is used to switch to a different tabs
+        -goBack() can be called to go back to the first tabs
+            -the tab navigator goBack() behavior is configurable
+        
+        Creating a tab navigator
+        
+            const AppNavigator = createBottomTabNavigator(
+                {"TabOne": ScreenComponentOne,
+                "TabTwo": ScreenComponentTwo,
+                });
+            export default class App extends React.Component 
+                {render() {return<AppNavigator/>  }}
+
+
+        
